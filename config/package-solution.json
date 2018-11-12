@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "sp-profile-update-client-side-solution",
+    "id": "2fc491bc-c73c-4a00-8080-9faaf2dc87e9",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/sp-profile-update.sppkg"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "@pnp/generator-spfx": {
+    "framework": "react",
+    "pnpFramework": "react",
+    "pnp-libraries": [
+      "jquery@3",
+      "@pnp/pnpjs",
+      "@pnp/spfx-property-controls",
+      "@pnp/spfx-controls-react"
+    ]
+  },
+  "@microsoft/generator-sharepoint": {
+    "framework": "react",
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.6.0",
+    "libraryName": "sp-profile-update",
+    "libraryId": "2fc491bc-c73c-4a00-8080-9faaf2dc87e9",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}
