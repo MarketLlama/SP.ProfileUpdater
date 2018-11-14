@@ -8,7 +8,7 @@ import Panel from 'react-bootstrap/lib/Panel';
 import PanelGroup from 'react-bootstrap/lib/PanelGroup';
 import accordian from 'react-bootstrap/lib/Accordion';
 import collapsible from 'react-bootstrap/lib/Collapse';
-import { TaxonomyPicker, IPickerTerms } from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
+import { TaxonomyPicker, IPickerTerms , IPickerTerm} from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
 import { sp } from "@pnp/sp";
 
 		
@@ -41,7 +41,8 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
     this.onInit.bind(this);
     this.onInit();
     this.updateProfile.bind(this);
-
+    this.pushTerms.bind(this);
+    this.popTerms.bind(this);
   }
 
   public onInit() :void{
@@ -183,14 +184,21 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
   private onDepartmentChange(terms : IPickerTerms) : void{
     console.log(terms);
     if(terms){
-      this._terms.push(terms[0]);
+      this.pushTerms(terms[0]);
     }else {
-      let array = this._terms.filter(term =>{
-        return term.termSetName == "ApplicableFunction";
-      });
-
-      console.log(array);
+      this.popTerms("ApplicableFunction");
     }
+  }
+  private pushTerms(term : IPickerTerm):void{
+    this._terms.push(term);
+  }
+
+  private popTerms(termSetName : string):void{
+    let array = this._terms.filter(term =>{
+      return term.termSetName == termSetName;
+    });
+
+    console.log(array);
   }
   private updateProfile():void{
     sp.profiles.setSingleValueProfileProperty(this.state.accountName,"","").then(item =>{
