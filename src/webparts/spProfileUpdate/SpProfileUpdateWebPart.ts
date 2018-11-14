@@ -22,7 +22,8 @@ export default class SpProfileUpdateWebPart extends BaseClientSideWebPart<ISpPro
     const element: React.ReactElement<ISpProfileUpdateProps > = React.createElement(
       SpProfileUpdate,
       {
-        description: this.properties.description
+        description: this.properties.description,
+        context : this.context
       }
     );
 
