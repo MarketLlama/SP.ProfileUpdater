@@ -1,12 +1,18 @@
 @import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
-/*@import '../bootstrap-styles/syngenta-bootstrap.module';*/
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
-@import'~bootstrap/scss/bootstrap.scss';
-@import '~bootstrap/scss/bootstrap-grid.scss';
+
+$primary: #5f7800;
+$seconday: #adb5bd;
+
+input[type=button]:hover, input[type=reset]:hover, input[type=submit]:hover, button:not():hover {
+  border-color: initial !important;
+  background-color: initial !important;
+  background-color: initial !important;
+  border: initial !important;
+}
 
 .spProfileUpdate {
-  
+  @include ms-Grid;
+
   div h3 span{
     color : #FFF;
     font-size:14px;
@@ -19,6 +25,12 @@
   h1{
       font-weight: 200;
   }
+
+  .row {
+    @include ms-Grid-row;
+  }
+
+
 
   .login_box{
     color:white;
@@ -47,11 +59,6 @@
         background: linear-gradient(45deg,  $primary 5%,lighten($primary,10%) 99%); /* W3C */
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$primary', endColorstr='lighten($primary,10%)',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
         
-        width:90%;
-        height:80%;
-        position:absolute;
-        top:10%;
-        left:5%;
     }
   }
 
@@ -61,18 +68,6 @@
     height: 175px;
     border: 4px solid #FFF;
     margin: 10px;
-  }
-
-  .follow{
-    background-color:#FC563B;
-    height: 80px;
-    cursor:pointer;
-  }
-
-  .follow:hover {
-    background-color:#F22F26;
-    height: 80px;
-    cursor:pointer;
   }
 
   .login_control{
@@ -92,49 +87,6 @@
     font-weight: 500;
   }
 
-  .form-control{
-    color: #000000 !important;
-    font-size: 25px;
-    border: none;
-    padding: 25px;
-    padding-left: 10px;
-    border-bottom: 1px solid #CCC;
-    margin-bottom: 10px;
-    outline: none;
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
-  }
-
-  .form-control:focus{
-    border-radius: 0px;
-    border-bottom: 1px solid #FC563B;
-    margin-bottom: 10px;
-    outline: none;
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
-  }
-  .btn-orange{
-    background-color: #FC563B;
-    border-radius: 0px;
-    margin: 5px;
-    padding: 5px;
-    width: 150px;
-    font-size: 20px;
-    font-weight: inherit;
-  }
-
-  .btn-orange:hover {
-    background-color: #F22F26;
-    border-radius: 0px;
-    margin: 5px;
-    padding: 5px;
-    width: 150px;
-    font-size: 20px;
-    font-weight: inherit;
-    color:#FFF !important;
-  }
 
   .line{
     border-bottom : 2px solid $primary;

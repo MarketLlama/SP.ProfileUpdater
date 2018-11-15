@@ -10,6 +10,34 @@ import pnp from '@pnp/pnpjs';
 import * as strings from 'SpProfileUpdateWebPartStrings';
 import SpProfileUpdate from './components/SpProfileUpdate';
 import { ISpProfileUpdateProps } from './components/ISpProfileUpdateProps';
+import { loadTheme } from 'office-ui-fabric-react';
+
+loadTheme({
+  palette: {
+    themePrimary: '#5f7800',
+    themeLighterAlt: '#f7faf0',
+    themeLighter: '#e1e9c4',
+    themeLight: '#c9d696',
+    themeTertiary: '#97ae46',
+    themeSecondary: '#6e8810',
+    themeDarkAlt: '#546c00',
+    themeDark: '#475b00',
+    themeDarker: '#354300',
+    neutralLighterAlt: '#f8f8f8',
+    neutralLighter: '#f4f4f4',
+    neutralLight: '#eaeaea',
+    neutralQuaternaryAlt: '#dadada',
+    neutralQuaternary: '#d0d0d0',
+    neutralTertiaryAlt: '#c8c8c8',
+    neutralTertiary: '#c2c2c2',
+    neutralSecondary: '#858585',
+    neutralPrimaryAlt: '#4b4b4b',
+    neutralPrimary: '#333333',
+    neutralDark: '#272727',
+    black: '#1d1d1d',
+    white: '#ffffff',
+  }
+});
 
 export interface ISpProfileUpdateWebPartProps {
   description: string;
