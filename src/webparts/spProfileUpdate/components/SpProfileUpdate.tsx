@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { sp } from "@pnp/sp";
-import { Fabric } from 'office-ui-fabric-react/lib/Fabric'
+import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import styles from './SpProfileUpdate.module.scss';
 import { ISpProfileUpdateProps } from './ISpProfileUpdateProps';
-import { ISpProfileUpdateState } from './ISpProfileUpdateState'
+import { ISpProfileUpdateState } from './ISpProfileUpdateState';
 import { Collapse } from 'react-collapse';
+import {SpProfileReminder} from './SpProfileReminder';
 import { IconButton, IButtonProps, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { 
   TaxonomyPicker, 
@@ -25,10 +26,9 @@ import {
 } from "@pnp/sp-taxonomy";
 
 export default class SpProfileUpdate extends React.Component<ISpProfileUpdateProps, ISpProfileUpdateState> {
-
+  private _targetButton = React.createRef<HTMLDivElement>();
   constructor(props, state) {
     super(props);
-
     this.state = {
       time: new Date(),
       firstName : '',
@@ -49,7 +49,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
   public onInit() :void{
     sp.profiles.myProperties.get().then(user =>{
       console.log(user);
-
+      console.log(React.version);
       let imageUrl = (user.PictureUrl)? user.PictureUrl.replace("MThumb","LThumb") : 
         this.props.context.pageContext.site.absoluteUrl + "/_layouts/15/images/PersonPlaceholder.200x150x32.png";
       let accountName = user.AccountName;
@@ -164,10 +164,13 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     isTermSetSelectable={false}
                     initialValues={this.state.defaultDepartmentTerms}
                   />
+                <div ref={this._targetButton}>
                 <PrimaryButton disabled={this.state.termList.length == 0 } 
                     iconProps={{ iconName: 'AddFriend' }}
                     onClick={this.updateProfile.bind(this)} 
                     style={{float:'right', margin:'20px'}}>Update</PrimaryButton>
+                </div>
+                <SpProfileReminder target={this._targetButton.current} isVisible={true}/>
                 <br/>
               </div>
           </Collapse>
@@ -206,7 +209,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
     } else {
       if(this.state.termList.length !== 0){
         newTermList = this.state.termList.filter(term =>{
-          return term.termSetName == termSetName
+          return term.termSetName == termSetName;
         });
       }
     }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Coachmark } from '@microsoft/sp-office-ui-fabric-core/';
+import { Coachmark } from 'office-ui-fabric-react/lib/Coachmark';
 import { TeachingBubbleContent } from 'office-ui-fabric-react/lib/TeachingBubble';
 import { DefaultButton, IButtonProps } from 'office-ui-fabric-react/lib/Button';
 import { DirectionalHint } from 'office-ui-fabric-react/lib/common/DirectionalHint';
@@ -14,6 +14,7 @@ export interface ISpProfileReminderState {
 
 export interface ISpProfileReminderProps {
     target : HTMLDivElement;
+    isVisible : boolean;
 }
 
 export interface ISpProfileReminderStyles {
@@ -33,7 +34,7 @@ export interface ISpProfileReminderStyles {
   dropdownContainer: IStyle;
 }
 
-export class SpProfileReminder extends BaseComponent<ISpProfileReminderProps, ISpProfileReminderState> {
+export class SpProfileReminder extends React.Component<ISpProfileReminderProps, ISpProfileReminderState> {
 
   public constructor(props: ISpProfileReminderProps) {
     super(props);
@@ -98,11 +99,9 @@ export class SpProfileReminder extends BaseComponent<ISpProfileReminderProps, IS
   }
 
   public componentDidMount(){
-    setTimeout(() =>{
     this.setState({
-        isCoachmarkVisible: !this.state.isCoachmarkVisible
+        isCoachmarkVisible: this.props.isVisible
     });
-    },10000);
   }
 
   private _onDismiss = (): void => {
