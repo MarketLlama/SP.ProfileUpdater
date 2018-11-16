@@ -1,26 +1,32 @@
 import * as React from 'react';
+import { sp } from "@pnp/sp";
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric'
 import styles from './SpProfileUpdate.module.scss';
 import { ISpProfileUpdateProps } from './ISpProfileUpdateProps';
+import { ISpProfileUpdateState } from './ISpProfileUpdateState'
 import { Collapse } from 'react-collapse';
 import { IconButton, IButtonProps, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
-import { TaxonomyPicker, IPickerTerms , IPickerTerm} from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
-import { sp } from "@pnp/sp";
+import { 
+  TaxonomyPicker, 
+  IPickerTerms , 
+  IPickerTerm
+} from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
 
-export interface ISpProfileUpdateState{
-  time : Date;
-  firstName : string;
-  imageUrl : string;
-  title : string;
-  accountName : string;
-  termList : IPickerTerms;
-  open : boolean;
-}
+import {
+  taxonomy,
+  ITermStore,
+  ITerms,
+  ILabelMatchInfo,
+  ITerm,
+  ITermData,
+  ITermStoreData,
+  ITermSet,
+  ITermSetData,
+} from "@pnp/sp-taxonomy";
 
 export default class SpProfileUpdate extends React.Component<ISpProfileUpdateProps, ISpProfileUpdateState> {
-  private _currentTermSet : string;
 
-  constructor(props, state:ISpProfileUpdateState) {
+  constructor(props, state) {
     super(props);
 
     this.state = {
@@ -30,7 +36,10 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
       accountName : '',
       title : '',
       termList : [],
-      open : false
+      open : false,
+      defaultLocationTerms : [],
+      defaultDepartmentTerms : [],
+      defaultLanguageTerms : []
     };
     this.onInit.bind(this);
     this.onInit();
@@ -49,6 +58,39 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
       let firstName :string = user.UserProfileProperties.find(item =>{
         return item.Key == "FirstName";
       }).Value;
+
+      let location :string = user.UserProfileProperties.find(item =>{
+          return item.Key == "SPS-Location";
+      }).Value;
+      if(location){
+        this.getInitialValues(location).then(terms =>{
+          this.setState({
+            defaultLocationTerms : terms
+          });
+        });
+      }
+
+      let department :string = user.UserProfileProperties.find(item =>{
+          return item.Key == "SPS-Department";
+      }).Value;
+      if(department){
+        this.getInitialValues(department).then(terms =>{
+          this.setState({
+            defaultDepartmentTerms : terms
+          });
+        });
+      }
+            
+      let language :string = user.UserProfileProperties.find(item =>{
+        return item.Key == "SPS-MUILanguages";
+      }).Value;
+      if(language){
+        this.getInitialValues(language).then(terms =>{
+          this.setState({
+            defaultLanguageTerms : terms
+          });
+        });
+      }
 
       this.setState({
         firstName : firstName,
@@ -81,7 +123,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
       <div className={styles.spProfileUpdate}>
         <div className={[styles.login_box, styles.row].join(' ')}>
             <div className={[styles["col-md-12"],styles["col-sm-12"]].join(' ')} style={{textAlign:'center'}}>
-                  <div className={styles.line}><h3 style={{padding: '10px', marginTop:0}}>{(h % 12) == 0? '12' : h % 12}:{(m < 10 ? '0' + m : m)}:{(s < 10 ? '0' + s : s)} {h < 12 ? 'AM' : 'PM'}</h3></div>
+                  <div className={styles.line}><h3 style={{padding: '10px', marginTop:0,fontWeight:600}}>{(h % 12) == 0? '12' : h % 12}:{(m < 10 ? '0' + m : m)}:{(s < 10 ? '0' + s : s)} {h < 12 ? 'AM' : 'PM'}</h3></div>
                   <div className={styles.outter}><img src={this.state.imageUrl} className={styles["image-circle"]}/></div>   
                   <h1>{greeting}{this.state.firstName}</h1>
                   <span>{this.state.title}</span>
@@ -100,6 +142,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     context={this.props.context}
                     onChange={this.onTaxChangeLanguage}
                     isTermSetSelectable={false}
+                    initialValues={this.state.defaultLanguageTerms}
                   />
                 <TaxonomyPicker
                     allowMultipleSelections={false}
@@ -109,6 +152,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     context={this.props.context}
                     onChange={this.onTaxChangeLocation}
                     isTermSetSelectable={false}
+                    initialValues={this.state.defaultLocationTerms}
                   />
                 <TaxonomyPicker
                     allowMultipleSelections={false}
@@ -118,6 +162,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     context={this.props.context}
                     onChange={this.onTaxChangeDepartment}
                     isTermSetSelectable={false}
+                    initialValues={this.state.defaultDepartmentTerms}
                   />
                 <PrimaryButton disabled={this.state.termList.length == 0 } 
                     iconProps={{ iconName: 'AddFriend' }}
@@ -194,10 +239,32 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
     });
   }
 
-  private getInitialValues(userProfileProp : any):IPickerTerms{
-    let terms : IPickerTerms = [];
+  private async getInitialValues(userProfileProp : string){
+    let userTerms : IPickerTerms = [];
+    
+    let store: (ITermStoreData & ITermStore)[] = await taxonomy.termStores.get();
 
-    return terms;
+    let labelMatchInfo: ILabelMatchInfo = {
+      TermLabel: userProfileProp,
+      TrimUnavailable: true,
+    };
+  
+    let terms: (ITermData & ITerm)[] = await store[0].getTerms(labelMatchInfo).get();
+
+    let regExp = /\(([^)]+)\)/;
+    for(let term of terms){
+        let termSet :(ITermSetData & ITermSet) =  await this.getTermSet(term);
+        userTerms.push({
+          key : regExp.exec(term.Id)[1],
+          name : term.Name,
+          path : term.PathOfTerm,
+          termSet : regExp.exec(termSet.Id)[1]
+      });
+    }
+    return userTerms;
   }
 
+  private async getTermSet(term : ITermData & ITerm){
+    return term.termSet.get();
+  }
 }
