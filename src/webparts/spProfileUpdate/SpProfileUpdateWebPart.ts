@@ -11,6 +11,8 @@ import * as strings from 'SpProfileUpdateWebPartStrings';
 import SpProfileUpdate from './components/SpProfileUpdate';
 import { ISpProfileUpdateProps } from './components/ISpProfileUpdateProps';
 import { loadTheme } from 'office-ui-fabric-react';
+import { initializeIcons } from '@uifabric/icons';
+initializeIcons();
 
 loadTheme({
   palette: {

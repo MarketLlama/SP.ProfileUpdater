@@ -26,7 +26,8 @@ import {
 } from "@pnp/sp-taxonomy";
 
 export default class SpProfileUpdate extends React.Component<ISpProfileUpdateProps, ISpProfileUpdateState> {
-  private _targetButton = React.createRef<HTMLDivElement>();
+  private _targetButton = null;
+  public setTarget: (element: any) => void;
   constructor(props, state) {
     super(props);
     this.state = {
@@ -36,6 +37,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
       accountName : '',
       title : '',
       termList : [],
+      showCheckMark : false,
       open : false,
       defaultLocationTerms : [],
       defaultDepartmentTerms : [],
@@ -44,6 +46,10 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
     this.onInit.bind(this);
     this.onInit();
     this.updateProfile.bind(this);
+
+    this.setTarget = element => {
+      this._targetButton = element;
+    };
   }
 
   public onInit() :void{
@@ -59,38 +65,25 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
         return item.Key == "FirstName";
       }).Value;
 
-      let location :string = user.UserProfileProperties.find(item =>{
-          return item.Key == "SPS-Location";
-      }).Value;
-      if(location){
-        this.getInitialValues(location).then(terms =>{
+      let promises = [
+        this.setUserTaxonomy(user, "SPS-Location"),
+        this.setUserTaxonomy(user, "SPS-Department"),
+        this.setUserTaxonomy(user, "SPSNewsLanguage")
+      ];
+      Promise.all(promises).then(terms =>{
+        if(terms[0] == undefined || terms[1] == undefined  || terms[2] == undefined ){
           this.setState({
-            defaultLocationTerms : terms
+            showCheckMark : true
           });
+        }
+        this.setState({
+          defaultLocationTerms : terms[0],
+          defaultDepartmentTerms : terms[1],
+          defaultLanguageTerms : terms[2]
         });
-      }
-
-      let department :string = user.UserProfileProperties.find(item =>{
-          return item.Key == "SPS-Department";
-      }).Value;
-      if(department){
-        this.getInitialValues(department).then(terms =>{
-          this.setState({
-            defaultDepartmentTerms : terms
-          });
-        });
-      }
-            
-      let language :string = user.UserProfileProperties.find(item =>{
-        return item.Key == "SPS-MUILanguages";
-      }).Value;
-      if(language){
-        this.getInitialValues(language).then(terms =>{
-          this.setState({
-            defaultLanguageTerms : terms
-          });
-        });
-      }
+      }, error=>{
+        console.log(error);
+      });
 
       this.setState({
         firstName : firstName,
@@ -119,7 +112,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
       greeting = 'Evening, ';
     }
     return (
-      <Fabric>
+      <Fabric id="_userProfile" >
       <div className={styles.spProfileUpdate}>
         <div className={[styles.login_box, styles.row].join(' ')}>
             <div className={[styles["col-md-12"],styles["col-sm-12"]].join(' ')} style={{textAlign:'center'}}>
@@ -128,8 +121,10 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                   <h1>{greeting}{this.state.firstName}</h1>
                   <span>{this.state.title}</span>
                   <br/>
+                  <div ref={this.setTarget}>
                   <IconButton iconProps={(this.state.open)? { iconName: 'DoubleChevronUp' } : { iconName: 'DoubleChevronDown' }} 
                   onClick={() => this.setState({ open: !this.state.open })}/>
+                  </div>
             </div>    
         </div>
           <Collapse isOpened={this.state.open}>
@@ -140,7 +135,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     panelTitle="Select Language"
                     label="Language"
                     context={this.props.context}
-                    onChange={this.onTaxChangeLanguage}
+                    onChange={this.onTaxChange.bind(this,"Wizdom_Languages")}
                     isTermSetSelectable={false}
                     initialValues={this.state.defaultLanguageTerms}
                   />
@@ -150,7 +145,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     panelTitle="Select Location"
                     label="Location"
                     context={this.props.context}
-                    onChange={this.onTaxChangeLocation}
+                    onChange={this.onTaxChange.bind(this,"GeographyHierarchy")}
                     isTermSetSelectable={false}
                     initialValues={this.state.defaultLocationTerms}
                   />
@@ -160,19 +155,18 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
                     panelTitle="Select Department"
                     label="Department"
                     context={this.props.context}
-                    onChange={this.onTaxChangeDepartment}
+                    onChange={this.onTaxChange.bind(this, "ApplicableFunction")}
                     isTermSetSelectable={false}
                     initialValues={this.state.defaultDepartmentTerms}
                   />
-                <div ref={this._targetButton}>
+                
                 <PrimaryButton disabled={this.state.termList.length == 0 } 
                     iconProps={{ iconName: 'AddFriend' }}
                     onClick={this.updateProfile.bind(this)} 
                     style={{float:'right', margin:'20px'}}>Update</PrimaryButton>
                 </div>
-                <SpProfileReminder target={this._targetButton.current} isVisible={true}/>
+                <SpProfileReminder target={this._targetButton} isVisible={this.state.showCheckMark}/>
                 <br/>
-              </div>
           </Collapse>
       </div>
       </Fabric>);
@@ -188,21 +182,17 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
 			time: new Date()
 		});
   }
-  
-  //Best way i could do it....
-  private onTaxChangeLanguage = (terms : IPickerTerms) => {
-    this.onTaxChange(terms, "Wizdom_Languages");
-  } 
 
-  private onTaxChangeLocation = (terms : IPickerTerms) => {
-    this.onTaxChange(terms, "GeographyHierarchy");
-  } 
+  private setUserTaxonomy = async (user: any, key: string) =>{
+    let userProp :string = user.UserProfileProperties.find(item =>{
+        return item.Key == key;
+    }).Value;
+    if(userProp){
+      return this.getInitialValues(userProp);
+    }
+  }
 
-  private onTaxChangeDepartment = (terms : IPickerTerms) => {
-    this.onTaxChange(terms, "ApplicableFunction");
-  } 
-
-  private onTaxChange = (terms : IPickerTerms, termSetName : string) => {
+  private onTaxChange = (termSetName : string, terms : IPickerTerms,) => {
     let newTermList : IPickerTerms = [];
     if(terms.length !== 0){
       newTermList.push(terms[0]);
@@ -232,7 +222,7 @@ export default class SpProfileUpdate extends React.Component<ISpProfileUpdatePro
       sp.profiles.inBatch(batch).setSingleValueProfileProperty(this.state.accountName,"SPS-Location",location.name);
     }
     if(language){
-      sp.profiles.inBatch(batch).setSingleValueProfileProperty(this.state.accountName,"SPS-MUILanguages",language.name);
+      sp.profiles.inBatch(batch).setSingleValueProfileProperty(this.state.accountName,"SPSNewsLanguage",language.name);
     }
 
     batch.execute().then(() => {

@@ -7,6 +7,7 @@ export interface ISpProfileUpdateState{
     title : string;
     accountName : string;
     termList : IPickerTerms;
+    showCheckMark : boolean;
     open : boolean;
     defaultLocationTerms : IPickerTerms;
     defaultLanguageTerms : IPickerTerms;

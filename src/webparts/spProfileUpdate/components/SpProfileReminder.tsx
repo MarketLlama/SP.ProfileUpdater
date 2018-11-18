@@ -6,6 +6,8 @@ import { DirectionalHint } from 'office-ui-fabric-react/lib/common/DirectionalHi
 import { IStyle } from 'office-ui-fabric-react/lib/Styling';
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { BaseComponent, classNamesFunction } from 'office-ui-fabric-react/lib/Utilities';
+import { Icon } from 'office-ui-fabric-react/lib/Icon';
+
 
 export interface ISpProfileReminderState {
   isCoachmarkVisible?: boolean;
@@ -41,7 +43,7 @@ export class SpProfileReminder extends React.Component<ISpProfileReminderProps, 
 
     this.state = {
       isCoachmarkVisible: false,
-      coachmarkPosition: DirectionalHint.bottomAutoEdge
+      coachmarkPosition: DirectionalHint.bottomCenter
     };
   }
 
@@ -58,14 +60,6 @@ export class SpProfileReminder extends React.Component<ISpProfileReminderProps, 
       };
     }, {});
 
-    const buttonProps: IButtonProps = {
-      text: 'Try it'
-    };
-
-    const buttonProps2: IButtonProps = {
-      text: 'Try it again'
-    };
-
     return (
       <div className={classNames.root}>
         {isCoachmarkVisible && (
@@ -79,18 +73,18 @@ export class SpProfileReminder extends React.Component<ISpProfileReminderProps, 
             ariaLabelledBy={'coachmark-label1'}
             ariaDescribedByText={'Press enter or alt + C to open the Coachmark notification'}
             ariaLabelledByText={'Coachmark notification'}
+            color="#EB8200"
           >
             <TeachingBubbleContent
-              headline="Example Title"
+              headline="Outstanding Profile Updates"
               hasCloseIcon={true}
               closeButtonAriaLabel="Close"
-              primaryButtonProps={buttonProps}
-              secondaryButtonProps={buttonProps2}
               onDismiss={this._onDismiss}
               ariaDescribedBy={'example-description1'}
               ariaLabelledBy={'example-label1'}
             >
-              Welcome to the land of Coachmarks!
+              We need more information to target news towards you! Click the chevrons above to enter your details.
+              Use the <Icon iconName="Tag"/> next to each input to get the full list of available tags.
             </TeachingBubbleContent>
           </Coachmark>
         )}
@@ -101,6 +95,11 @@ export class SpProfileReminder extends React.Component<ISpProfileReminderProps, 
   public componentDidMount(){
     this.setState({
         isCoachmarkVisible: this.props.isVisible
+    });
+  }
+  public componentWillReceiveProps(props) {
+    this.setState({
+      isCoachmarkVisible : props.isVisible
     });
   }
 

@@ -27,7 +27,7 @@
     "@types/webpack-env": "1.13.1",
     "jquery": "^3.0.0",
     "prettier": "^1.15.2",
-    "react": "^16.6.3",
+    "react": "^15.6.2",
     "react-collapse": "^4.0.3",
     "react-dom": "15.6.2",
     "react-motion": "^0.5.2"
