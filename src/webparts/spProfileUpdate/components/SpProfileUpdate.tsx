@@ -28,6 +28,7 @@ import {
 export default class SpProfileUpdate extends React.Component<ISpProfileUpdateProps, ISpProfileUpdateState> {
   private _targetButton = null;
   public setTarget: (element: any) => void;
+
   constructor(props, state) {
     super(props);
     this.state = {
